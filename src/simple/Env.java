@@ -59,7 +59,7 @@ class Env{
         }
         throw new RuntimeException("Variable named " + key + " Not declared in this program");
     }
-    public void assign(String name, EnvItem value){
+    public void addVal(String name, EnvItem value){
         for (Map<String,EnvItem> sigmaMap : scopeStack) {
             if(sigmaMap.containsKey(name)){
                 sigmaMap.put(name, value);
