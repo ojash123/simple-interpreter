@@ -16,6 +16,7 @@ public class BigStep {
         if(expr instanceof IdExpr) return evaluate((IdExpr)expr, env);
         throw new UnsupportedOperationException("This expression type is not implemented");
     }
+
     private EnvItem evaluate(IntLiteral expr, Env env){
         return new IntVal(expr.value);
     }
@@ -48,4 +49,42 @@ public class BigStep {
             
         }
     }
+
+    void evaluate(Stmt stmt, Env env){
+        if(stmt instanceof BlockStmt)evaluate((BlockStmt) stmt, env);
+        else if(stmt instanceof IfStmt) evaluate((IfStmt) stmt, env);
+        else if(stmt instanceof LoopStmt) evaluate((LoopStmt) stmt, env);
+        else if(stmt instanceof AssignStmt) evaluate((AssignStmt) stmt, env);
+        else throw new UnsupportedOperationException("This statement type has not been implemented");
+    }
+
+    private void evaluate(VarDecl decl, Env env){
+        env.declare(decl.name, BigStep.init(decl.type));
+    }
+    private void evaluate(BlockStmt b, Env env){
+        env.enterScope();
+        for (VarDecl decl : b.declarations) {
+            evaluate(decl, env);
+        }
+        for (Stmt stmt : b.statements) {
+            evaluate(stmt, env);
+        }
+        env.exitScope();
+    }
+    private void evaluate(IfStmt ifStmt, Env env){
+        if(((BoolVal)evaluate(ifStmt.conditional, env)).value){
+            evaluate(ifStmt.t, env);
+        }else{
+            evaluate(ifStmt.e, env);
+        }
+    }
+    private void evaluate(LoopStmt loopStmt, Env env){
+        while(((BoolVal)evaluate(loopStmt.conditional, env)).value){
+            evaluate(loopStmt.body, env);
+        }
+    }
+    private void evaluate(AssignStmt assign, Env env){
+        env.addVal(assign.id, evaluate(assign.expr, env));
+    }
+
 }
