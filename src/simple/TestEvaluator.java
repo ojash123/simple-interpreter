@@ -13,8 +13,38 @@ public class TestEvaluator {
         testIfStatement();
         testLoopStatement();
         testBlockScoping();
+        testFunctionCalls();
     }
+    private static void testFunctionCalls() {
+        BigStep evaluator = new BigStep();
+        Env env = new Env();
+        env.declare("result", new IntVal(0));
 
+        // Define a function: int add(int a, int b) { return a + b; }
+        FuncDef addFunc = new FuncDef("add",
+            List.of(new VarDecl("a", Type.INTEGER), new VarDecl("b", Type.INTEGER)),
+            new ReturnStmt(new BinaryExpr(new IdExpr("a"), Operator.ADD, new IdExpr("b")))
+        );
+        evaluator.evaluate(addFunc, env); // "Declare" the function
+
+        // Create a statement: result = add(12, 30);
+        Stmt callStmt = new AssignStmt("result",
+            new FuncCall("add", List.of(new IntLiteral(12), new IntLiteral(30)))
+        );
+        evaluator.evaluate(callStmt, env);
+        test("Function Call", env.getVal("result").toString(), "42");
+        FuncDef addFunc2 = new FuncDef("dbl",
+            List.of(new VarDecl("a", Type.INTEGER)),
+            new ReturnStmt(new FuncCall("add", List.of(new IdExpr("a"), new IdExpr("a"))))
+        );
+        evaluator.evaluate(addFunc2, env); // "Declare" the function
+
+        Stmt callStmt2 = new AssignStmt("result",
+            new FuncCall("dbl", List.of(new IntLiteral(12)))
+        );
+        evaluator.evaluate(callStmt2, env);
+        test("Function Call within function call", env.getVal("result").toString(), "24");
+    }
     private static void testAssignment() {
         BigStep evaluator = new BigStep();
         Env env = new Env();

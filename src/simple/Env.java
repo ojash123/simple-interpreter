@@ -38,7 +38,12 @@ class Closure extends EnvItem{
     public String toString(){
         return "function: " + def.name;
     }
-}   
+} 
+// Custom exception for handling 'return' control flow.
+class ReturnValueException extends RuntimeException {
+    final EnvItem value;
+    public ReturnValueException(EnvItem val) { this.value = val; }
+}  
 
 class Env{
     private final Deque<Map<String, EnvItem>> scopeStack = new LinkedList<>();

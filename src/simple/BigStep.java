@@ -1,5 +1,8 @@
 package simple;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BigStep {
     static EnvItem init(Type t){
         if (t == Type.BOOLEAN) {
@@ -13,8 +16,9 @@ public class BigStep {
         if(expr instanceof BinaryExpr) return evaluate((BinaryExpr)expr, env);
         if(expr instanceof IntLiteral) return evaluate((IntLiteral)expr, env);
         if(expr instanceof BoolLiteral) return evaluate((BoolLiteral)expr, env);
+        if(expr instanceof FuncCall) return evaluate((FuncCall)expr, env);
         if(expr instanceof IdExpr) return evaluate((IdExpr)expr, env);
-        throw new UnsupportedOperationException("This expression type is not implemented");
+        throw new UnsupportedOperationException(expr.toString() + "This expression type is not implemented");
     }
 
     private EnvItem evaluate(IntLiteral expr, Env env){
@@ -29,6 +33,7 @@ public class BigStep {
     private EnvItem evaluate(BinaryExpr expr, Env env){
         EnvItem leftItem = evaluate(expr.left, env);
         EnvItem rightItem = evaluate(expr.right, env);
+        //to do: add type checking here
         switch (expr.op) {
             case ADD: return new IntVal(((IntVal)leftItem).value + ((IntVal)rightItem).value);
             case AND: return new BoolVal(((BoolVal)leftItem).value && ((BoolVal)rightItem).value);
@@ -49,15 +54,51 @@ public class BigStep {
             
         }
     }
+    private EnvItem evaluate(FuncCall funcCall, Env env){
+        EnvItem func = env.getVal(funcCall.name);
+        if(!(func instanceof Closure)){
+            throw new RuntimeException(funcCall.name + " is not a function");
+        }
+        Closure closure = (Closure)func;
+        FuncDef funcDef = closure.def;
+        if(funcCall.args.size() != funcDef.params.size()){
+            throw new RuntimeException("no of Params not matched!");
+        }
+        Env fenv = closure.funcEnv;
+        fenv.enterScope();
 
+        try {
+            List<EnvItem> argVals = new ArrayList<>();
+            for (Expr argExpr : funcCall.args) {
+                argVals.add(evaluate(argExpr, env));
+            }
+            for (int i = 0; i < argVals.size(); i++) {
+                //to do: Add type checking for params here
+                fenv.declare(funcDef.params.get(i).name, argVals.get(i));
+            }
+            
+            evaluate(funcDef.body, fenv);
+
+        } catch (ReturnValueException e) {
+            return e.value; 
+        } finally {
+            fenv.exitScope(); 
+        }
+
+        // If the function ends without a return statement.
+        throw new RuntimeException("Function " + funcCall.name + " did not return a value.");
+    }
     void evaluate(Stmt stmt, Env env){
         if(stmt instanceof BlockStmt)evaluate((BlockStmt) stmt, env);
         else if(stmt instanceof IfStmt) evaluate((IfStmt) stmt, env);
         else if(stmt instanceof LoopStmt) evaluate((LoopStmt) stmt, env);
         else if(stmt instanceof AssignStmt) evaluate((AssignStmt) stmt, env);
-        else throw new UnsupportedOperationException("This statement type has not been implemented");
+        else if(stmt instanceof ReturnStmt) evaluate((ReturnStmt)stmt, env);
+        else throw new UnsupportedOperationException(stmt.toString() + "This statement type has not been implemented");
     }
-
+    void evaluate(FuncDef def, Env env){
+        env.declare(def.name, new Closure(def, env));
+    }
     private void evaluate(VarDecl decl, Env env){
         env.declare(decl.name, BigStep.init(decl.type));
     }
@@ -84,7 +125,11 @@ public class BigStep {
         }
     }
     private void evaluate(AssignStmt assign, Env env){
+        //to do: Add type checking here
         env.addVal(assign.id, evaluate(assign.expr, env));
+    }
+    private void evaluate(ReturnStmt stmt, Env env){
+        throw new ReturnValueException(evaluate(stmt.expr, env));
     }
 
 }
