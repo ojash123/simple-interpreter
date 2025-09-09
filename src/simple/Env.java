@@ -84,5 +84,19 @@ class Env{
         }
         scopeStack.peek().put(name, value);
     }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        // Only prints the outermost (global) scope
+        if (!scopeStack.isEmpty()) {
+            Map<String, EnvItem> globalScope = scopeStack.peek();
+            for (Map.Entry<String, EnvItem> entry : globalScope.entrySet()) {
+                sb.append("  ").append(entry.getKey()).append(" = ").append(entry.getValue().toString()).append("\n");
+            }
+        }
+        sb.append("}");
+        return sb.toString();
+    }
 }
 

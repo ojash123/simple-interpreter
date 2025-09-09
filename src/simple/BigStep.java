@@ -12,6 +12,15 @@ public class BigStep {
         }
         throw new RuntimeException("Invalid Type");
     }
+    public static Env evaluateProgram(ProgramNode program){
+        Env env = new Env();
+        BigStep evaluator = new BigStep();
+        for (FuncDef def : program.fns) {
+            evaluator.evaluate(def, env);
+        }
+        evaluator.evaluate(program.main, env);
+        return env;
+    } 
     EnvItem evaluate(Expr expr, Env env){
         if(expr instanceof BinaryExpr) return evaluate((BinaryExpr)expr, env);
         if(expr instanceof IntLiteral) return evaluate((IntLiteral)expr, env);
@@ -110,6 +119,7 @@ public class BigStep {
         for (Stmt stmt : b.statements) {
             evaluate(stmt, env);
         }
+        System.out.println("Exiting Block Env: " + env.toString());
         env.exitScope();
     }
     private void evaluate(IfStmt ifStmt, Env env){
