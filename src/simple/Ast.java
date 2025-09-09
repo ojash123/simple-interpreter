@@ -14,15 +14,17 @@ enum Operator {ADD, SUB, MUL, DIV, EQ, LT, GT, AND, OR}
 
 class ProgramNode implements AstNode{
     final List<FuncDef> fns;
-    final Stmt main;
-    public ProgramNode(List<FuncDef> fns, Stmt main) {
+    final List<VarDecl> globals;
+    final List<Stmt> main;
+    public ProgramNode(List<FuncDef> fns,List<VarDecl> globals, List<Stmt> main) {
         this.fns = fns;
+        this.globals = globals;
         this.main = main;
     }
     
 }
 
-class VarDecl implements AstNode{
+class VarDecl extends Stmt{
     final String name;
     final Type type;
     public VarDecl(String name, Type type) {

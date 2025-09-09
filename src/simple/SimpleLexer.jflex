@@ -17,10 +17,7 @@ import java_cup.runtime.Symbol;
 // SECTION 2: Lexer States & Macros
 // =====================================================================
 
-// A macro for integer literals
 IntegerLiteral = [0-9]+
-
-// A macro for identifiers
 Identifier = [a-zA-Z][a-zA-Z0-9_]*
 
 %%
@@ -52,6 +49,7 @@ Identifier = [a-zA-Z][a-zA-Z0-9_]*
     "/"               { return new Symbol(sym.SLASH, yyline, yycolumn); }
 
     // --- Keywords ---
+    "func"            { return new Symbol(sym.FUNC, yyline, yycolumn); } // ADDED
     "if"              { return new Symbol(sym.IF, yyline, yycolumn); }
     "else"            { return new Symbol(sym.ELSE, yyline, yycolumn); }
     "while"           { return new Symbol(sym.WHILE, yyline, yycolumn); }

@@ -7,7 +7,6 @@ import java_cup.runtime.*;
 // SECTION 1: PREAMBLE & IMPORTS
 // =====================================================================
 
-// Java code that goes inside the generated parser class
 parser code {:
     // You can add helper methods or fields here if needed.
 :};
@@ -17,17 +16,15 @@ parser code {:
 // =====================================================================
 
 // --- TERMINALS (Tokens from the lexer) ---
-// These names MUST match what you use in the JFlex file.
 terminal LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, SEMICOLON;
 terminal ASSIGN, EQ, LT, GT, PLUS, MINUS, STAR, SLASH;
-terminal INT, BOOLEAN, IF, ELSE, WHILE, RETURN, TRUE, FALSE;
+terminal INT, BOOLEAN, IF, ELSE, WHILE, RETURN, TRUE, FALSE, FUNC; // Added FUNC
 
-// Terminals with values (like numbers and identifiers) need a type.
+// Terminals with values
 terminal String IDENTIFIER;
 terminal Integer INTEGER_LIT;
 
 // --- NON-TERMINALS (Grammar rules) ---
-// We must declare the type of object that each grammar rule will return.
 nonterminal ProgramNode program;
 nonterminal List<FuncDef> func_definitions;
 nonterminal FuncDef func_definition;
@@ -39,15 +36,13 @@ nonterminal List<VarDecl> declarations;
 nonterminal VarDecl declaration;
 nonterminal Type type;
 nonterminal List<Expr> args;
-
 nonterminal Expr expr;
-nonterminal Expr simple_expr; // For handling precedence
+nonterminal Expr simple_expr;
 
 // =====================================================================
 // SECTION 3: PRECEDENCE & ASSOCIATIVITY
 // =====================================================================
 
-// Defines operator precedence, from lowest to highest.
 precedence left EQ;
 precedence left LT, GT;
 precedence left PLUS, MINUS;
@@ -57,15 +52,17 @@ precedence left STAR, SLASH;
 // SECTION 4: THE GRAMMAR RULES
 // =====================================================================
 
-program ::= func_definitions:fns stmt:main
-    {: RESULT = new ProgramNode(fns, main); :};
+// MODIFIED: Program is now a list of functions followed by a list of statements.
+program ::= func_definitions:fns declarations:globals stmts:main
+    {: RESULT = new ProgramNode(fns, globals, main); :};
 
 func_definitions ::= func_definitions:list func_definition:fd
     {: list.add(fd); RESULT = list; :}
     | /* empty */
     {: RESULT = new ArrayList<FuncDef>(); :};
 
-func_definition ::= type:t IDENTIFIER:name LEFT_PAREN params:p RIGHT_PAREN stmt:body
+// MODIFIED: Function definitions now start with 'func' instead of a type.
+func_definition ::= FUNC IDENTIFIER:name LEFT_PAREN params:p RIGHT_PAREN stmt:body
     {: RESULT = new FuncDef(name, p, body); :};
 
 params ::= params:list COMMA declaration:d
@@ -130,3 +127,4 @@ args ::= args:list COMMA expr:e
     {: RESULT = new ArrayList<Expr>(Arrays.asList(e)); :}
     | /* empty */
     {: RESULT = new ArrayList<Expr>(); :};
+

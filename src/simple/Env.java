@@ -90,7 +90,7 @@ class Env{
         sb.append("{\n");
         // Only prints the outermost (global) scope
         if (!scopeStack.isEmpty()) {
-            Map<String, EnvItem> globalScope = scopeStack.peek();
+            Map<String, EnvItem> globalScope = scopeStack.getLast();
             for (Map.Entry<String, EnvItem> entry : globalScope.entrySet()) {
                 sb.append("  ").append(entry.getKey()).append(" = ").append(entry.getValue().toString()).append("\n");
             }

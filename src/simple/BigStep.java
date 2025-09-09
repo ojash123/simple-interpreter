@@ -18,7 +18,12 @@ public class BigStep {
         for (FuncDef def : program.fns) {
             evaluator.evaluate(def, env);
         }
-        evaluator.evaluate(program.main, env);
+        for(VarDecl global : program.globals){
+            evaluator.evaluate(global, env);
+        }
+        for (Stmt stmt : program.main) {
+            evaluator.evaluate(stmt, env);
+        }
         return env;
     } 
     EnvItem evaluate(Expr expr, Env env){
@@ -99,6 +104,7 @@ public class BigStep {
     }
     void evaluate(Stmt stmt, Env env){
         if(stmt instanceof BlockStmt)evaluate((BlockStmt) stmt, env);
+        else if(stmt instanceof VarDecl)evaluate((VarDecl)stmt, env);
         else if(stmt instanceof IfStmt) evaluate((IfStmt) stmt, env);
         else if(stmt instanceof LoopStmt) evaluate((LoopStmt) stmt, env);
         else if(stmt instanceof AssignStmt) evaluate((AssignStmt) stmt, env);
@@ -119,7 +125,7 @@ public class BigStep {
         for (Stmt stmt : b.statements) {
             evaluate(stmt, env);
         }
-        System.out.println("Exiting Block Env: " + env.toString());
+        //System.out.println("Exiting Block Env: " + env.toString());
         env.exitScope();
     }
     private void evaluate(IfStmt ifStmt, Env env){
