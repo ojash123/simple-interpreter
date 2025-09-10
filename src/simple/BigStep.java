@@ -112,7 +112,7 @@ public class BigStep {
         else throw new UnsupportedOperationException(stmt.toString() + "This statement type has not been implemented");
     }
     void evaluate(FuncDef def, Env env){
-        env.declare(def.name, new Closure(def, env));
+        env.declare(def.name, new Closure(def, new Env(env)));
     }
     private void evaluate(VarDecl decl, Env env){
         env.declare(decl.name, BigStep.init(decl.type));
@@ -145,6 +145,7 @@ public class BigStep {
         env.addVal(assign.id, evaluate(assign.expr, env));
     }
     private void evaluate(ReturnStmt stmt, Env env){
+        //env.exitScope();
         throw new ReturnValueException(evaluate(stmt.expr, env));
     }
 

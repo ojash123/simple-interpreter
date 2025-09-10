@@ -23,7 +23,6 @@ public class Evaluate {
             java_cup.runtime.Symbol result = cupParser.parse();
             ProgramNode program = (ProgramNode) result.value;
 
-            // 4. If parsing was successful, run the interpreter on the AST
             if (program != null) {
                 Env finalEnv = BigStep.evaluateProgram(program);
                 System.out.println("--- Program Finished ---");

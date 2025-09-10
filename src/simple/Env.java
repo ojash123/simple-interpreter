@@ -46,9 +46,17 @@ class ReturnValueException extends RuntimeException {
 }  
 
 class Env{
-    private final Deque<Map<String, EnvItem>> scopeStack = new LinkedList<>();
+    private final Deque<Map<String, EnvItem>> scopeStack;
     public Env(){
+        this.scopeStack = new LinkedList<>();
         enterScope();
+    }
+    //copy constructor for Function environment
+    public Env(Env other) {
+        this.scopeStack = new LinkedList<>();
+        for (Map<String, EnvItem> scope : other.scopeStack) {
+            this.scopeStack.addLast(new HashMap<>(scope));
+        }
     }
     public void enterScope(){
         scopeStack.push(new HashMap<>());
