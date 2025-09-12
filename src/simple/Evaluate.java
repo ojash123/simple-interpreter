@@ -24,6 +24,7 @@ public class Evaluate {
             ProgramNode program = (ProgramNode) result.value;
 
             if (program != null) {
+                System.out.println(program.toString());
                 Env finalEnv = BigStep.evaluateProgram(program);
                 System.out.println("--- Program Finished ---");
                 System.out.println("Final Environment State:");

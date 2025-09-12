@@ -132,7 +132,8 @@ public class BigStep {
         if(((BoolVal)evaluate(ifStmt.conditional, env)).value){
             evaluate(ifStmt.t, env);
         }else{
-            evaluate(ifStmt.e, env);
+            if(ifStmt.e != null)
+                evaluate(ifStmt.e, env);
         }
     }
     private void evaluate(LoopStmt loopStmt, Env env){
